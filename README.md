@@ -25,5 +25,5 @@ VersionUtil.get_version()
 # Uses the PorterStemmer & english stopwords from nltk
 stopwords, stemmer = prepare_stopwords()
 
-preprocess_text = preprocess_data(raw_text: str, stemmer, stopwords)
+preprocess_text = preprocess_data(raw_text, stemmer, stopwords)
 ```
