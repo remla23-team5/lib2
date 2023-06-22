@@ -2,6 +2,17 @@ name: Create release
 
 on:
   workflow_dispatch:
+    inputs:
+      bump:
+        description: 'Bump version'
+        required: true
+        default: 'patch'
+        options:
+          - major
+          - minor
+          - patch
+          - prepatch
+          - prerelease
   push:
     branches:
       - main
