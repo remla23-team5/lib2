@@ -28,6 +28,8 @@ jobs:
         poetry-version: [1.4.0]
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
+    outputs:
+      version: ${{ steps.bump.outputs.version }}
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
@@ -38,6 +40,7 @@ jobs:
         with:
           poetry-version: ${{ matrix.poetry-version }}
       - name: Bump version
+        id: bump
         if: ${{ github.event_name == 'workflow_dispatch' &&  github.event.inputs.bump  != 'none' }}
         run: |
           poetry version ${{ github.event.inputs.bump }}
@@ -45,9 +48,16 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git commit -am "bump version to $(poetry version -s)"
           git push
+          echo "version=$(poetry version -s)" >> "$GITHUB_OUTPUT"
       - name: Publish
         env:
           PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
         run: |
           poetry config pypi-token.pypi $PYPI_TOKEN
           poetry publish --build --skip-existing
+      - name: Tag and create release
+        uses: ncipollo/release-action@v1.12.0
+        if: ${{ steps.bump.outputs.version != '' }}
+        with:
+          tag: v${{ steps.bump.outputs.version }}
+          skipIfReleaseExists: true
